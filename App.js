@@ -1,14 +1,18 @@
-import { ImageBackground, TextInput, View, StyleSheet, Text, FlatList, Modal, Alert, Pressable, TouchableOpacity } from 'react-native';
+import { ImageBackground, Dimensions, TextInput, View, StyleSheet, Text, FlatList, Modal, Alert, Pressable, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
+import ModalList from "./componentes/ModalList";
+import ElementList from "./componentes/ElementList"
 
-const bgImage = { url: './assets/bgsoccer.jpg'}
 
 export default function App() {
+
   const [textItem, setTextItem] = useState('')
   const [itemList, setItemList] = useState([])
 
   const [modalVisible, setModalVisible] = useState(false)
   const [itemSelected, setItemSelected] = useState({})
+
+  const [itemId, setItemId] = useState(0);
 
   const onHandleChangeItem = (textUser) => {
     setTextItem(textUser)
@@ -32,25 +36,20 @@ export default function App() {
     setItemList((currentState) =>
       currentState.filter((item) => item.id !== itemSelected.id),
     )
-      setItemSelected({}),
+    setItemSelected({}),
       setModalVisible(false)
-    
+
   }
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.items} onPress={() => selectedItem(item.id)}>
-      <Text>{item.value}</Text>
-    </TouchableOpacity>
+    <ElementList item={item} selectedItem={selectedItem}></ElementList>
   )
 
 
   return (
     <View style={styles.container}>
-      <ImageBackground source={bgImage} resizeMode="cover" style={styles.image}></ImageBackground>
-      <Text
-        style={styles.title}
-      >
-        Grupo de amigos ⚽</Text>
+
+      <Text style={styles.title}>Grupo de amigos ⚽</Text>
       <View style={styles.itemContainer}>
         <TextInput
           value={textItem}
@@ -58,11 +57,14 @@ export default function App() {
           placeholder='Ingresar usuario'
           onChangeText={onHandleChangeItem}
         />
-        <TouchableOpacity onPress={addItem} style={styles.button} >
-          <Text>Agregar al prode</Text>
-        </TouchableOpacity>
-
-
+        <Pressable
+          style={styles.button}
+          onPress={addItem}
+        >
+          <Text style={styles.textButton}>
+            Agregar
+          </Text>
+        </Pressable>
 
       </View>
       <FlatList
@@ -70,26 +72,8 @@ export default function App() {
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
       />
-      <Modal
-        animationType='fade'
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert('La ventana ha sido cerrada');
-          setModalVisible(!modalVisible)
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={{ backgroundColor: '#00614' }}>
-            <Text>Quieres eliminar este usuario de la lista?</Text>
-            <Pressable onPress={() => deleteItem()} style={styles.buttonDelete} >
-              <Text>Eliminar</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+      <ModalList itemSelected={itemSelected} modalVisible={modalVisible} deleteItem={deleteItem}></ModalList>
     </View>
-
   );
 }
 
@@ -102,10 +86,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  image: {
-    flex: 1,
-    justifyContent: "center"
   },
   input: {
     borderBottomColor: '#cccccc',
@@ -131,19 +111,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#009929',
     padding: 10,
     borderRadius: 25,
-    color: 'white', 
+    color: 'white',
   },
-  buttonDelete: {
-    backgroundColor: 'red',
-    padding: 10,
-    marginTop: 10,
-    borderRadius: 25,
+  textButton: {
+    fontWeight: "bold",
+    fontSize: 15,
+    color: "white"
+
   },
   centeredView: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22,
+
+  },
+  background: {
+    position: 'relative',
+    left: 0,
+    top: 0,
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
   },
 })
 
